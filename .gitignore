@@ -2,5 +2,6 @@ _pycache_/
 build/
 dist/
 backups/
+*.png
 *.spec
 *.umvc3stg
