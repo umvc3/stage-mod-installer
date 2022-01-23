@@ -1,0 +1,6 @@
+_pycache_/
+build/
+dist/
+backups/
+*.spec
+*.umvc3stg
