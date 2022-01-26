@@ -51,7 +51,7 @@ class GUI(tk.Tk):
 
     def _setUMvC3Dir(self, textbox):
         default_umvc3_dir = r'C:\Program Files (x86)\Steam\steamapps\common\ULTIMATE MARVEL VS. CAPCOM 3'
-        umvc3_path = filedialog.askdirectory(initialdir=default_umvc3_dir, title='Select ULTIMATE MARVEL VS. CAPCOM 3 Folder')
+        umvc3_path = filedialog.askdirectory(initialdir=default_umvc3_dir, title='Select ULTIMATE MARVEL VS. CAPCOM 3 Folder').replace('/', '\\')
         if umvc3_path:
             textbox.delete(1.0,tk.END)
             textbox.insert(1.0, umvc3_path)

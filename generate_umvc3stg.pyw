@@ -90,7 +90,7 @@ class GUI(tk.Tk):
 
     def _setUMvC3Dir(self, textbox):
         default_umvc3_dir = r'C:\Program Files (x86)\Steam\steamapps\common\ULTIMATE MARVEL VS. CAPCOM 3'
-        stage_path = filedialog.askopenfilename(initialdir=default_umvc3_dir, title='Select Your Stage\'s .arc File (nativePCx64\\stg\\<stage_id>\\0000.arc)', filetypes=(('MT Framework Archive', '*.arc'),))
+        stage_path = filedialog.askopenfilename(initialdir=default_umvc3_dir, title='Select Your Stage\'s .arc File (nativePCx64\\stg\\<stage_id>\\0000.arc)', filetypes=(('MT Framework Archive', '*.arc'),)).replace('/', '\\')
         if stage_path:
             textbox.delete(1.0,tk.END)
             textbox.insert(1.0, stage_path)

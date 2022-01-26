@@ -3,6 +3,7 @@ from datetime import datetime
 from glob import glob
 from shutil import copy
 from umvc3stg import InvalidUMvC3Stg, UMvC3Stg
+from tkinter import messagebox
 import os
 import arc_file_paths
 
@@ -21,6 +22,8 @@ class Installer(object):
 
         self.mnchsstg_paths = [os.path.abspath(p) for p in glob(os.path.join(self.umvc3_dir, self._nativePCx64_ui, 'mnchsstg*arc'))]
 
+        self.backup_dir = ''
+
     def _copy(self, src, dst):
         try:
             copy(src, dst)
@@ -32,9 +35,13 @@ class Installer(object):
         if not os.path.exists(backups_dir):
             os.makedirs(backups_dir)
 
-        backup_dir = 'backup'+str(len(os.listdir('.\\backups'))).zfill(3) + datetime.now().strftime("_%Y-%m-%d_%H-%M-%S")
-        backup_dir = os.path.join(backups_dir, backup_dir)
-        os.makedirs(backup_dir)
+        if not self.backup_dir:
+            backup_dir = 'backup'+str(len(os.listdir('.\\backups'))).zfill(3) + datetime.now().strftime("_%Y-%m-%d_%H-%M-%S")
+            backup_dir = os.path.join(backups_dir, backup_dir)
+            os.makedirs(backup_dir)
+            self.backup_dir = backup_dir
+        else:
+            backup_dir = self.backup_dir
 
         stage_dir = os.path.join(self.stage_path, stage_id.zfill(3))
         stg_backup_dir = os.path.join(backup_dir, self._nativePCx64_stg, stage_id.zfill(3))
@@ -62,15 +69,34 @@ class Installer(object):
             printfn('Generated a backup of', stg_arcade_arc.replace('/', '\\'))
 
     def run(self, printfn=print):
+        if not os.path.exists(os.path.join(self.umvc3_dir, self._nativePCx64_stg)):
+            umvc3_dir = self.umvc3_dir.replace('/', '\\')
+            error_msg = f'"{umvc3_dir}" is not the correct folder.\n\nThe correct path will end with:\n"Steam\\steamapps\\common\\ULTIMATE MARVEL VS. CAPCOM 3"'
+            messagebox.showerror('Incorrect UMvC3 Folder Location', error_msg)
+            return
+
         stages = glob('./*.umvc3stg')
+
+        if len(stages) == 0:
+            messagebox.showerror('Insufficient Stages to Install', 'There are no stages to install.\n.umvc3stg file(s) must be included in the same folder as this executable.')
+            return
+
+        for stage in stages:
+            stage_id = os.path.basename(stage).split('.')[0].lstrip('0')
+            try:
+                with UMvC3Stg(stage, 'r') as umvc3stg:
+                    self.generate_backups(stage_id, umvc3stg, printfn=printfn)
+            except InvalidUMvC3Stg:
+                printfn('ERROR: '+os.path.abspath(stage)+ ' is an invalid ".umvc3stg" file')
+                printfn('='*30)
+            except Exception as ex:
+                printfn(ex)
 
         for stage in stages:
             stage_id = os.path.basename(stage).split('.')[0].lstrip('0')
             printfn('Installing "'+os.path.abspath(stage).replace('/', '\\')+'" ...')
             try:
                 with UMvC3Stg(stage, 'r') as umvc3stg:
-                    self.generate_backups(stage_id, umvc3stg, printfn=printfn)
-
                     # inject the stage preview/text in stage select
                     for mnchsstg in self.mnchsstg_paths:
                         lang = mnchsstg[-7:-4] if mnchsstg[-7] == '_' else ''
@@ -111,3 +137,5 @@ class Installer(object):
                 printfn('='*30)
             except Exception as ex:
                 printfn(ex)
+
+        messagebox.showinfo('Installation Complete', 'Stage(s) have finished installing.')
