@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 from threading import Thread
 from b64_icon import icon
 from umvc3stg import UMvC3Stg
@@ -7,52 +7,66 @@ from arc import Arc
 import arc_file_paths
 import os
 
-def generate_UMvC3Stg(arc, outdir='.'):
+def generate_UMvC3Stg(tk, arc, outdir='.'):
     """generates .umvc3stg file with 
     
+    :param tk: tk.Tk
     :param arc: path to stage arc file
     :type arc: str
     """
-    arc = arc.replace('/', '\\').strip()
-    stage_id = os.path.basename(arc.split('\\0000.arc')[0])
-    outfile = os.path.join(outdir, stage_id+'.umvc3stg')
+    try:
+        arc = arc.replace('/', '\\').strip()
+        stage_id = os.path.basename(arc.split('\\0000.arc')[0])
+        outfile = os.path.join(outdir, stage_id+'.umvc3stg').replace('/', '\\')
+        outfile = os.path.abspath(outfile).replace('/', '\\')
 
-    new_arc_path = lambda p: os.path.abspath(os.path.join(arc, p))
-    sound_arc = Arc(new_arc_path('..\\..\\..\\sound\\chs.arc'))
-    arcade_arc = Arc(new_arc_path('..\\..\\..\\ui\\res\\arc\\stg\\'+stage_id.zfill(4)+'.arc'))
-    chs_arc = Arc(new_arc_path('..\\..\\..\\ui\\mnchsstg.arc'))
+        new_arc_path = lambda p: os.path.abspath(os.path.join(arc, p))
+        sound_arc = Arc(new_arc_path('..\\..\\..\\sound\\chs.arc'))
+        arcade_arc = Arc(new_arc_path('..\\..\\..\\ui\\res\\arc\\stg\\'+stage_id.zfill(4)+'.arc'))
+        chs_arc = Arc(new_arc_path('..\\..\\..\\ui\\mnchsstg.arc'))
 
-    announcer_path = arc_file_paths.get_announcer(stage_id)
-    stg_text_path = arc_file_paths.get_stage_text(stage_id)
-    stg_preview_path = arc_file_paths.get_stage_preview(stage_id)
-    sm_stg_preview_path = arc_file_paths.get_small_stage_preview(stage_id)
-    arcade_path = arc_file_paths.get_stage_arcade_text(stage_id)
+        announcer_path = arc_file_paths.get_announcer(stage_id)
+        stg_text_path = arc_file_paths.get_stage_text(stage_id)
+        stg_preview_path = arc_file_paths.get_stage_preview(stage_id)
+        sm_stg_preview_path = arc_file_paths.get_small_stage_preview(stage_id)
+        arcade_path = arc_file_paths.get_stage_arcade_text(stage_id)
 
-    def open_and_write(umvc3stg, arc, filename):
-        binary = b''
-        for i in range(len(arc.path_list)):
-            if arc.path_list[i] == filename:
-                binary = arc.binaries[i]
-                break
-        umvc3stg.write(binary)
+        def open_and_write(umvc3stg, arc, filename):
+            binary = b''
+            for i in range(len(arc.path_list)):
+                if arc.path_list[i] == filename:
+                    binary = arc.binaries[i]
+                    break
+            umvc3stg.write(binary)
+            umvc3stg.close()
+
+        if os.path.exists(outfile):
+            yn = messagebox.askquestion('Overwrite file', f'Do you want to overwrite "{outfile}"?')
+            if yn == messagebox.NO:
+                return
+
+        umvc3stg = UMvC3Stg(outfile, 'w')
+        # put 0000.arc in archive
+        with umvc3stg.open(umvc3stg.ARC, 'w') as umvc3stg_arc, open(arc, 'rb') as stg_arc:
+            umvc3stg_arc.write(stg_arc.read())
+        # put announcer.xsew in archive
+        open_and_write(umvc3stg.open(umvc3stg.ANNOUNCER, 'w'), sound_arc, announcer_path)
+        # put stage_select_text.tex in archive
+        open_and_write(umvc3stg.open(umvc3stg.STG_TEXT, 'w'), chs_arc, stg_text_path)
+        # put stage_preview.tex in archive
+        open_and_write(umvc3stg.open(umvc3stg.STG_PREVIEW, 'w'), chs_arc, stg_preview_path)
+        # put small_stage_preview.tex in archive
+        open_and_write(umvc3stg.open(umvc3stg.STG_PREVIEW_SM, 'w'), chs_arc, sm_stg_preview_path)
+        # put arcade_text.tex in archive
+        open_and_write(umvc3stg.open(umvc3stg.STG_TEXT_ARCADE, 'w'), arcade_arc, arcade_path)
+
         umvc3stg.close()
-
-    umvc3stg = UMvC3Stg(outfile, 'w')
-    # put 0000.arc in archive
-    with umvc3stg.open(umvc3stg.ARC, 'w') as umvc3stg_arc, open(arc, 'rb') as stg_arc:
-        umvc3stg_arc.write(stg_arc.read())
-    # put announcer.xsew in archive
-    open_and_write(umvc3stg.open(umvc3stg.ANNOUNCER, 'w'), sound_arc, announcer_path)
-    # put stage_select_text.tex in archive
-    open_and_write(umvc3stg.open(umvc3stg.STG_TEXT, 'w'), chs_arc, stg_text_path)
-    # put stage_preview.tex in archive
-    open_and_write(umvc3stg.open(umvc3stg.STG_PREVIEW, 'w'), chs_arc, stg_preview_path)
-    # put small_stage_preview.tex in archive
-    open_and_write(umvc3stg.open(umvc3stg.STG_PREVIEW_SM, 'w'), chs_arc, sm_stg_preview_path)
-    # put arcade_text.tex in archive
-    open_and_write(umvc3stg.open(umvc3stg.STG_TEXT_ARCADE, 'w'), arcade_arc, arcade_path)
-
-    umvc3stg.close()
+        messagebox.showinfo('File Generated', f'"{outfile}" has been created.')
+    except FileNotFoundError:
+        messagebox.showerror('Error', 'Invalid stage arc file.')
+    except Exception as ex:
+        messagebox.showerror('Error', ex)
+        tk.quit()
 
 class GUI(tk.Tk):
     def __init__(self):
@@ -102,7 +116,7 @@ class GUI(tk.Tk):
         def t(self):
             stage_arc = self.widgets['stage_arc_textbox'].get("1.0",tk.END)
             if len(stage_arc) > 1:
-                generate_UMvC3Stg(stage_arc)
+                generate_UMvC3Stg(self, stage_arc)
                 pass
             self.enable_widgets()
             return

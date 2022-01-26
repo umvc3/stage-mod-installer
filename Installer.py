@@ -30,6 +30,12 @@ class Installer(object):
         except:
             pass
 
+    def _makedirs(self, p):
+        try:
+            os.makedirs(p)
+        except:
+            pass
+
     def generate_backups(self, stage_id, umvc3stg, printfn=print):
         backups_dir = os.path.abspath('./backups')
         if not os.path.exists(backups_dir):
@@ -46,25 +52,25 @@ class Installer(object):
         stage_dir = os.path.join(self.stage_path, stage_id.zfill(3))
         stg_backup_dir = os.path.join(backup_dir, self._nativePCx64_stg, stage_id.zfill(3))
         stg_arc = os.path.join(stage_dir, '0000.arc')
-        os.makedirs(stg_backup_dir)
+        self._makedirs(stg_backup_dir)
         self._copy(stg_arc, stg_backup_dir)
         printfn('Generated a backup of', stg_arc.replace('/', '\\'))
 
         if umvc3stg.announcer:
             sound_backup_dir = os.path.join(backup_dir, self._nativePCx64_sound)
-            os.makedirs(sound_backup_dir)
+            self._makedirs(sound_backup_dir)
             self._copy(self.sound_path, sound_backup_dir)
             printfn('Generated a backup of', self.sound_path.replace('/', '\\'))
         if umvc3stg.stage_select_text or umvc3stg.stage_preview or umvc3stg.small_stage_preview:
             ui_backup_dir = os.path.join(backup_dir, self._nativePCx64_ui)
-            os.makedirs(ui_backup_dir)
+            self._makedirs(ui_backup_dir)
             for mnchsstg in self.mnchsstg_paths:
                 self._copy(mnchsstg, ui_backup_dir)
                 printfn('Generated a backup of', mnchsstg.replace('/', '\\'))
         if umvc3stg.arcade_text or umvc3stg.stage_preview:
             arcade_backup_dir = os.path.join(backup_dir, self._nativePCx64_arcade)
             stg_arcade_arc = os.path.join(self.arcade_path, stage_id.zfill(4)+'.arc')
-            os.makedirs(arcade_backup_dir)
+            self._makedirs(arcade_backup_dir)
             self._copy(stg_arcade_arc, arcade_backup_dir)
             printfn('Generated a backup of', stg_arcade_arc.replace('/', '\\'))
 
@@ -81,16 +87,18 @@ class Installer(object):
             messagebox.showerror('Insufficient Stages to Install', 'There are no stages to install.\n.umvc3stg file(s) must be included in the same folder as this executable.')
             return
 
-        for stage in stages:
-            stage_id = os.path.basename(stage).split('.')[0].lstrip('0')
-            try:
-                with UMvC3Stg(stage, 'r') as umvc3stg:
-                    self.generate_backups(stage_id, umvc3stg, printfn=printfn)
-            except InvalidUMvC3Stg:
-                printfn('ERROR: '+os.path.abspath(stage)+ ' is an invalid ".umvc3stg" file')
-                printfn('='*30)
-            except Exception as ex:
-                printfn(ex)
+        backup_prompt = messagebox.askquestion('Generate Backup', 'Would you like to backup your stages?')
+        if backup_prompt == messagebox.YES:
+            for stage in stages:
+                stage_id = os.path.basename(stage).split('.')[0].lstrip('0')
+                try:
+                    with UMvC3Stg(stage, 'r') as umvc3stg:
+                        self.generate_backups(stage_id, umvc3stg, printfn=printfn)
+                except InvalidUMvC3Stg:
+                    printfn('ERROR: '+os.path.abspath(stage)+ ' is an invalid ".umvc3stg" file')
+                    printfn('='*30)
+                except Exception as ex:
+                    printfn(ex)
 
         for stage in stages:
             stage_id = os.path.basename(stage).split('.')[0].lstrip('0')
