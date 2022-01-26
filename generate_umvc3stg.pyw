@@ -60,13 +60,13 @@ class GUI(tk.Tk):
         self.title('Generate UMvC3 Stage Installer File')
         self.resizable(False, False)
         self.widgets = {}
-        self.add_UMvC3_dir()
+        self.add_stage_arc_path()
         self.add_install_button()
 
         img = tk.PhotoImage(data=icon)
         self.tk.call('wm', 'iconphoto', self._w, img)
 
-    def add_UMvC3_dir(self):
+    def add_stage_arc_path(self):
         self.widgets['stage_arc_label'] = tk.Label(self, text='Select stage arc file')
         self.widgets['stage_arc_label'].grid(column=0, row=0)
 
