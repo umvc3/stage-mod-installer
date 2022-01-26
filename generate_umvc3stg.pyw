@@ -73,7 +73,7 @@ class GUI(tk.Tk):
         self.widgets['stage_arc_textbox'] = tk.Text(self, height=1, width=35, wrap='none')
         self.widgets['stage_arc_textbox'].grid(column=0, row=1)
 
-        self.widgets['stage_arc_button'] = tk.Button(self, text='Open', command=lambda:self._setUMvC3Dir(self.widgets['stage_arc_textbox']))
+        self.widgets['stage_arc_button'] = tk.Button(self, text='Open', command=lambda:self._stage_arc_path(self.widgets['stage_arc_textbox']))
         self.widgets['stage_arc_button'].grid(column=1, row=1)
 
     def add_install_button(self):
@@ -88,7 +88,7 @@ class GUI(tk.Tk):
         for widget in self.widgets:
             self.widgets[widget]['state'] = 'normal'
 
-    def _setUMvC3Dir(self, textbox):
+    def _stage_arc_path(self, textbox):
         default_umvc3_dir = r'C:\Program Files (x86)\Steam\steamapps\common\ULTIMATE MARVEL VS. CAPCOM 3'
         stage_path = filedialog.askopenfilename(initialdir=default_umvc3_dir, title='Select Your Stage\'s .arc File (nativePCx64\\stg\\<stage_id>\\0000.arc)', filetypes=(('MT Framework Archive', '*.arc'),)).replace('/', '\\')
         if stage_path:
