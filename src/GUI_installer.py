@@ -1,8 +1,8 @@
 import tkinter as tk
 from tkinter import filedialog
 from threading import Thread
-from Installer import Installer
-from b64_icon import icon
+from .utils import Installer
+from .icon.b64_icon import icon
 
 class GUI(tk.Tk):
     def __init__(self):
@@ -81,7 +81,3 @@ class GUI(tk.Tk):
         thread = Thread(target=t, args=(self,))
         thread.daemon = True
         thread.start()
-
-if __name__ == '__main__':
-    root = GUI()
-    root.mainloop()

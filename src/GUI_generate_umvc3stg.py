@@ -1,10 +1,10 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 from threading import Thread
-from b64_icon import icon
-from umvc3stg import UMvC3Stg
-from arc import Arc
-import arc_file_paths
+from .icon.b64_icon import icon
+from .utils.umvc3stg import UMvC3Stg
+from .utils.arc import Arc
+from .utils import arc_file_paths
 import os
 
 def generate_UMvC3Stg(tk, arc, outdir='.'):
@@ -124,7 +124,3 @@ class GUI(tk.Tk):
         thread = Thread(target=t, args=(self,))
         thread.daemon = True
         thread.start()
-
-if __name__ == '__main__':
-    root = GUI()
-    root.mainloop()

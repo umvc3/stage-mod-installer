@@ -1,11 +1,11 @@
-from arc import Arc
+from .arc import Arc
+from .umvc3stg import InvalidUMvC3Stg, UMvC3Stg
+from . import arc_file_paths
 from datetime import datetime
 from glob import glob
 from shutil import copy
-from umvc3stg import InvalidUMvC3Stg, UMvC3Stg
 from tkinter import messagebox
 import os
-import arc_file_paths
 
 class Installer(object):
     def __init__(self, umvc3_dir):
