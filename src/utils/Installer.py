@@ -56,23 +56,20 @@ class Installer(object):
         self._copy(stg_arc, stg_backup_dir)
         printfn('Generated a backup of', stg_arc.replace('/', '\\'))
 
-        if umvc3stg.announcer:
-            sound_backup_dir = os.path.join(backup_dir, self._nativePCx64_sound)
-            self._makedirs(sound_backup_dir)
-            self._copy(self.sound_path, sound_backup_dir)
-            printfn('Generated a backup of', self.sound_path.replace('/', '\\'))
-        if umvc3stg.stage_select_text or umvc3stg.stage_preview or umvc3stg.small_stage_preview:
-            ui_backup_dir = os.path.join(backup_dir, self._nativePCx64_ui)
-            self._makedirs(ui_backup_dir)
-            for mnchsstg in self.mnchsstg_paths:
-                self._copy(mnchsstg, ui_backup_dir)
-                printfn('Generated a backup of', mnchsstg.replace('/', '\\'))
-        if umvc3stg.arcade_text or umvc3stg.stage_preview:
-            arcade_backup_dir = os.path.join(backup_dir, self._nativePCx64_arcade)
-            stg_arcade_arc = os.path.join(self.arcade_path, stage_id.zfill(4)+'.arc')
-            self._makedirs(arcade_backup_dir)
-            self._copy(stg_arcade_arc, arcade_backup_dir)
-            printfn('Generated a backup of', stg_arcade_arc.replace('/', '\\'))
+        sound_backup_dir = os.path.join(backup_dir, self._nativePCx64_sound)
+        self._makedirs(sound_backup_dir)
+        self._copy(self.sound_path, sound_backup_dir)
+        printfn('Generated a backup of', self.sound_path.replace('/', '\\'))
+        ui_backup_dir = os.path.join(backup_dir, self._nativePCx64_ui)
+        self._makedirs(ui_backup_dir)
+        for mnchsstg in self.mnchsstg_paths:
+            self._copy(mnchsstg, ui_backup_dir)
+            printfn('Generated a backup of', mnchsstg.replace('/', '\\'))
+        arcade_backup_dir = os.path.join(backup_dir, self._nativePCx64_arcade)
+        stg_arcade_arc = os.path.join(self.arcade_path, stage_id.zfill(4)+'.arc')
+        self._makedirs(arcade_backup_dir)
+        self._copy(stg_arcade_arc, arcade_backup_dir)
+        printfn('Generated a backup of', stg_arcade_arc.replace('/', '\\'))
 
     def run(self, printfn=print):
         if not os.path.exists(os.path.join(self.umvc3_dir, self._nativePCx64_stg)):
