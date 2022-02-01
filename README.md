@@ -58,7 +58,7 @@ To create the stage previews, use the templates provided
 
 ![small stage preview template](doc/small_stage_preview_template.png)
 
-Save both of those as `stage_preview.dds` and `small_stage_preview.dds` respectively. They should both be saved as DXT5
+Save both of those as `stage_preview.dds` and `small_stage_preview.dds` respectively. You will need the [NVIDIA Texture Tools Exporter Photoshop plugin](https://developer.nvidia.com/nvidia-texture-tools-exporter) in order to save as `.dds`. They should both be saved as DXT5
 
 ![nvidia plugin](doc/nvidia_plugin.png)
 
